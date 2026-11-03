@@ -2668,9 +2668,9 @@
                 }
             }
         </style>
-        <!--! Meta Pixel: replace YOUR_PIXEL_ID and remove the comment markers
-<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','YOUR_PIXEL_ID');fbq('track','PageView');</script>
--->
+        <!-- Meta Pixel -->
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','986907289147402');fbq('track','PageView');</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=986907289147402&ev=PageView&noscript=1" alt=""></noscript>
     </head>
     <body>
         <div class="urgent" role="status">
@@ -4121,6 +4121,55 @@
                         n.classList.add("off"), e.observe(n);
                     });
                 }
+            })();
+        </script>
+        <script>
+            !(function () {
+                if (!window.fbq) return;
+                var seen = {};
+                function once(k, fn) {
+                    if (seen[k]) return;
+                    seen[k] = 1;
+                    fn();
+                }
+                // CTA buttons that jump to the form
+                document.addEventListener("click", function (e) {
+                    var a = e.target.closest && e.target.closest("a");
+                    if (!a) return;
+                    var h = a.getAttribute("href") || "";
+                    if (h === "#claim") fbq("trackCustom", "CTAClick", { label: (a.textContent || "").trim() });
+                    else if (h.indexOf("tel:") === 0) fbq("track", "Contact", { method: "call" });
+                    else if (h.indexOf("mailto:") === 0) fbq("track", "Contact", { method: "email" });
+                });
+                // Form scrolled into view
+                var f = document.getElementById("claim");
+                if (f && "IntersectionObserver" in window) {
+                    var io = new IntersectionObserver(function (en) {
+                        en.forEach(function (x) {
+                            if (x.isIntersecting) {
+                                once("vc", function () {
+                                    fbq("track", "ViewContent", { content_name: "Lead form" });
+                                });
+                                io.disconnect();
+                            }
+                        });
+                    }, { threshold: 0.4 });
+                    io.observe(f);
+                }
+                // Lead: widget form submit (lives inside the widget, possibly in a shadow root)
+                var t = setInterval(function () {
+                    var w = document.querySelector("[data-leadgen-form] .leadgen-widget");
+                    var root = w && (w.shadowRoot || w);
+                    var form = root && root.querySelector("form");
+                    if (!form) return;
+                    clearInterval(t);
+                    form.addEventListener("submit", function () {
+                        once("lead", function () {
+                            fbq("track", "Lead", { content_name: "Free demo" });
+                        });
+                    });
+                }, 500);
+                setTimeout(function () { clearInterval(t); }, 60000);
             })();
         </script>
         <script src="https://api.leadzam.com/widget/widget.js" defer="defer"></script>
